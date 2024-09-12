@@ -18,7 +18,8 @@ import {
   sendAndConfirmTx,
 } from "@lightprotocol/stateless.js";
 import dotenv from "dotenv";
-
+import { sha256 } from "@noble/hashes/sha256";
+import { PublicKey } from "@solana/web3.js";
 dotenv.config();
 describe("zkns", () => {
   // Configure the client to use the local cluster.
@@ -64,13 +65,29 @@ describe("zkns", () => {
     //   bn(assetDataAddress.toBytes()),
     // ]);
     const name = "mjlee.io";
-    const { merkleTree, addressQueue } = defaultTestStateTreeAccounts();
+    const { merkleTree, addressTree, addressQueue } =
+      defaultTestStateTreeAccounts();
+    const initialBuffer = Buffer.concat([
+      Buffer.from("name-service"),
+      Buffer.from(name),
+    ]);
+    const seed = sha256(
+      Buffer.concat([
+        program.programId.toBuffer(),
+        addressTree.toBuffer(),
+        initialBuffer,
+      ])
+    );
 
-    // const addressSeed = deriveAddress(name.toBytes(), merkleTree);
+    const address = await deriveAddress(seed, addressTree);
+    const { compressedProof } = await connection.getValidityProof(undefined, [
+      bn(address.toBytes()),
+    ]);
 
-    // Add your test here.
+    // Create a vec<bytes> input
+    const inputs = Buffer.from([1, 2, 3]);
     const tx = await program.methods
-      .createRecord("mjlee")
+      .createRecord([inputs], compressedProof)
       .accounts({
         signer: provider.wallet.publicKey,
         selfProgram: program.programId,
