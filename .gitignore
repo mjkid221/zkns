@@ -5,3 +5,8 @@ target
 node_modules
 test-ledger
 .yarn
+# Ignore .env files
+.env
+.env.*
+
+light-prover

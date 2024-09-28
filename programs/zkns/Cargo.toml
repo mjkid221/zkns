@@ -9,25 +9,42 @@ crate-type = ["cdylib", "lib"]
 name = "zkns"
 
 [features]
-default = ["custom-heap"]
+default = ["idl-build"]
 cpi = ["no-entrypoint"]
 no-entrypoint = []
 no-idl = []
 no-log-ix-name = []
-idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
-custom-heap = ["light-heap"]
+idl-build = [
+  "anchor-lang/idl-build",
+  "anchor-spl/idl-build",
+  "light-sdk/idl-build",
+]
+test-sbf = []
+bench-sbf = []
+custom-heap = []
 
 [dependencies]
 anchor-lang = { version = "0.29.0", features = ["init-if-needed"] }
 anchor-spl = "0.29.0"
 solana-program = "=1.18.22"
-account-compression = { git = "https://github.com/mjkid221/light-protocol", branch = "main", version = "0.7.0", features = [
-  "cpi",
+light-utils = { git = "https://github.com/mjkid221/light-protocol", branch = "snapshot-23-09-2024", version = "1.0.0" }
+light-sdk = { git = "https://github.com/mjkid221/light-protocol", branch = "snapshot-23-09-2024", version = "0.10.0", features = [
+  "idl-build",
 ] }
-light-heap = { git = "https://github.com/mjkid221/light-protocol", branch = "main", version = "0.5.0", optional = true }
-light-system-program = { git = "https://github.com/mjkid221/light-protocol", branch = "main", version = "0.7.0", features = [
-  "cpi",
+light-hasher = { git = "https://github.com/mjkid221/light-protocol", branch = "snapshot-23-09-2024", version = "1.0.0", features = [
+  "solana",
 ] }
-light-utils = { git = "https://github.com/mjkid221/light-protocol", branch = "main", version = "0.5.0" }
-light-sdk = { git = "https://github.com/mjkid221/light-protocol", branch = "main", version = "0.5.0" }
-light-hasher = { git = "https://github.com/mjkid221/light-protocol", branch = "main", version = "0.5.0" }
+light-macros = { git = "https://github.com/mjkid221/light-protocol", branch = "snapshot-23-09-2024", version = "1.0.0" }
+light-sdk-macros = { git = "https://github.com/mjkid221/light-protocol", branch = "snapshot-23-09-2024", version = "0.3.0" }
+light-verifier = { git = "https://github.com/mjkid221/light-protocol", branch = "snapshot-23-09-2024", version = "1.0.0" }
+borsh = "0.10.0"
+light-heap = { git = "https://github.com/mjkid221/light-protocol", branch = "snapshot-23-09-2024", version = "1.0.0", optional = true }
+
+[target.'cfg(not(target_os = "solana"))'.dependencies]
+solana-sdk = "1.18.22"
+
+[dev-dependencies]
+solana-program-test = "1.18.22"
+anyhow = "1.0.44"
+light-client = { git = "https://github.com/mjkid221/light-protocol", branch = "snapshot-23-09-2024" }
+light-test-utils = { git = "https://github.com/mjkid221/light-protocol", branch = "snapshot-23-09-2024", version = "1.0.0" }

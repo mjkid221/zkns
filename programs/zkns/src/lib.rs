@@ -1,14 +1,13 @@
 use anchor_lang::prelude::*;
 use light_sdk::{
-    compressed_account::LightAccount,
-    light_account, light_accounts, light_program,
-    merkle_context::{PackedAddressMerkleContext, PackedMerkleContext},
+    compressed_account::LightAccount, light_account, light_accounts, light_program,
+    merkle_context::PackedAddressMerkleContext,
 };
-use light_system_program::invoke::processor::CompressedProof;
 
 declare_id!("J4Y18vjQXWtJbo3UNVwyz8MikkGwcqF9sKPhUNBRxZED");
 
 #[light_program]
+#[program]
 pub mod zkns {
     use super::*;
 
@@ -22,6 +21,11 @@ pub mod zkns {
         Ok(())
     }
 }
+#[error_code]
+pub enum CustomError {
+    #[msg("No authority to perform this action")]
+    Unauthorized,
+}
 
 #[light_account]
 #[derive(Clone, Debug, Default)]
@@ -33,6 +37,7 @@ pub struct NameRecord {
 }
 
 #[light_accounts]
+#[instruction(name: String)]
 pub struct CreateRecord<'info> {
     #[account(mut)]
     #[fee_payer]
@@ -41,8 +46,9 @@ pub struct CreateRecord<'info> {
     pub self_program: Program<'info, crate::program::Zkns>,
     /// CHECK: Checked in light-system-program.
     #[authority]
+    // #[account(seeds = [CPI_AUTHORITY_PDA_SEED], bump)]
     pub cpi_signer: AccountInfo<'info>,
 
-    #[light_account(init, seeds = [b"name-service", record.name.as_bytes()])]
+    #[light_account(init, seeds = [b"name-service", name.as_bytes()])]
     pub record: LightAccount<NameRecord>,
 }
